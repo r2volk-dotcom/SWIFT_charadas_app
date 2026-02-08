@@ -16,6 +16,7 @@ struct PalabraAcertadaButton: View {
             action()
             withAnimation(.easeInOut(duration: 0.5)) {
                 rotation += 360
+                
             }
         }
         .foregroundColor(colorLetra)
