@@ -68,13 +68,8 @@ struct PartidaActiva: View {
                         titulo: "ㄨ",
                         colorLetra: Color.red,
                         colorFondo: Color.red.opacity(0.35),
-                        action: {
-                            listaElementos.removeAll { $0 == palabra }
-                            incorrectas.append(palabra)
-                            numeroAleatorio = Int.random(in: 0..<listaElementos.count)
-                            palabra = listaElementos[numeroAleatorio]
-                        },
-                        palabra: $palabra)
+                        action: {procesarRespuesta(esAcierto: false)}
+                    )
                     
                     Spacer()
                     Spacer()
@@ -83,13 +78,8 @@ struct PartidaActiva: View {
                         titulo: "✓",
                         colorLetra: Color.green,
                         colorFondo: Color.green.opacity(0.35),
-                        action: {
-                            listaElementos.removeAll { $0 == palabra }
-                            acertados.append(palabra)
-                            numeroAleatorio = Int.random(in: 0..<listaElementos.count)
-                            palabra = listaElementos[numeroAleatorio]
-                        },
-                        palabra: $palabra)
+                        action: {procesarRespuesta(esAcierto: true)}
+                    )
                     
                     Spacer()
                     
@@ -98,7 +88,7 @@ struct PartidaActiva: View {
                 
             }else{
                 Button("Empezar") {
-                    listaElementos = listas(cat:categoria)
+                    listaElementos = DatosJuego.obtenerPalabras(categoria: categoria)
                     numeroAleatorio = Int.random(in: 0..<listaElementos.count)
                     palabra = listaElementos[numeroAleatorio]
                     if !temporizadorEnEjecucion {
@@ -122,9 +112,38 @@ struct PartidaActiva: View {
         
     }
     
+    // Funcion para manejar la respuesta
+    func procesarRespuesta(esAcierto: Bool) {
+        // 1. Guardar en la lista correspondiente
+        if esAcierto {
+            acertados.append(palabra)
+        } else {
+            incorrectas.append(palabra)
+        }
+        
+        // 2. Eliminar la palabra actual de la lista pendiente
+        // Usamos firstIndex para ser más precisos y rápidos que removeAll
+        if let index = listaElementos.firstIndex(of: palabra) {
+            listaElementos.remove(at: index)
+        }
+        
+        // 3. Elegir nueva palabra (CON SEGURIDAD)
+        // Usamos randomElement() porque si la lista está vacía, no crashea la app
+        if let nuevaPalabra = listaElementos.randomElement() {
+            palabra = nuevaPalabra
+        } else {
+            // Si no quedan palabras, terminamos el juego
+            resultados = true
+            segundosRestantes = 90
+            // No borramos listaElementos aquí para poder ver resultados si quieres
+            palabra = ""
+        }
+    }
+
+    
     func iniciarTemporizador() {
         
-        segundosRestantes = 90
+        segundosRestantes = 5
         temporizadorEnEjecucion = true
         var segundos = segundosRestantes
         
@@ -137,7 +156,7 @@ struct PartidaActiva: View {
                 temporizadorEnEjecucion = false
                 if segundosRestantes == 0{
                     resultados = true
-                    segundosRestantes = 90
+                    segundosRestantes = 5
                     listaElementos = []
                     palabra = ""
                 }
@@ -146,5 +165,3 @@ struct PartidaActiva: View {
     }
     
 }
-
-
