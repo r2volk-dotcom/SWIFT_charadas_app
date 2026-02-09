@@ -15,7 +15,6 @@ struct ContentView: View {
         
         
         if eleccionCategoria{
-            
             Categorias(categoria:$categoria,
                        eleccionCategoria:$eleccionCategoria)
             
